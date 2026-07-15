@@ -5,9 +5,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Live-mount source for development; keep the image's installed vendor/
+      # Live-mount source for development; host and container share one vendor/
       - ./:/app
-      - /app/vendor
     environment:
       # Point Doctrine at the "database" service (overrides .env for the container)
       DATABASE_URL: "postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=utf8"

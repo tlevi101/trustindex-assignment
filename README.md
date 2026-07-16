@@ -2,6 +2,8 @@
 
 Egyszerű cég értékelő felület. Frontend JS kód egyszerűsítéséhez Alpine.js-t használtam. 
 
+## Live demo
+Projekt megtekinthető ezen az oldalon: [trustindex-demo.leventetorma.dev](https://trustindex-demo.leventetorma.dev)
 ## Technológiák
 
 - PHP 8 / **Symfony 7.4**

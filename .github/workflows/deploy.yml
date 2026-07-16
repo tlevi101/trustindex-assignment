@@ -1,0 +1,105 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-trustindex-demo
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: ctype, iconv, mbstring, pdo_pgsql, intl, opcache
+          coverage: none
+      - name: Composer install (prod, no scripts)
+        # --no-scripts: skip Flex auto-scripts (cache:clear/assets:install) here;
+        # cache is warmed on the server where paths are correct.
+        run: composer install --no-dev --prefer-dist --no-progress --optimize-autoloader --no-scripts
+      - name: Package release tarball
+        run: |
+          tar --exclude='./.git' --exclude='./.github' --exclude='./tests' \
+              --exclude='./var' --exclude='./.env.local' --exclude='./.env.*.local' \
+              -czf /tmp/release.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: /tmp/release.tar.gz
+          retention-days: 3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+      - name: Bring up Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+          version: latest
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+      - name: Ship release
+        run: scp release.tar.gz deploy@${{ secrets.SSH_HOST }}:/tmp/release.tar.gz
+      - name: Deploy on server
+        run: |
+          ssh deploy@${{ secrets.SSH_HOST }} 'bash -se' <<'REMOTE'
+            set -euo pipefail
+            umask 0002          # group-writable so php-fpm (www-data) & deploy share files
+            SITE=/var/www/trustindex-demo
+            DATA=/var/www/trustindex-demo-data
+
+            tar -xzf /tmp/release.tar.gz -C "$SITE" --overwrite
+            rm /tmp/release.tar.gz
+
+            # Mark this as a legitimate deploy so the Proxmox-host security-checker
+            # silently re-baselines this tree instead of alerting on the changes.
+            date -u +%FT%TZ > "$SITE/.deployed-at"
+
+            # Persistent config + writable dir (recreated each deploy; idempotent).
+            ln -sfn "$DATA/.env.local" "$SITE/.env.local"
+            ln -sfn "$DATA/var"        "$SITE/var"
+
+            if [ ! -s "$DATA/.env.local" ]; then
+              echo "ERROR: $DATA/.env.local is empty. Bootstrap it before deploying." >&2
+              exit 1
+            fi
+            # Guard against a misconfigured env booting the app in dev on prod.
+            if ! grep -q '^APP_ENV=prod' "$DATA/.env.local"; then
+              echo "ERROR: $DATA/.env.local must set APP_ENV=prod." >&2
+              exit 1
+            fi
+
+            cd "$SITE"
+            # cache:clear warms the prod cache by default; run migrations.
+            # NEVER fixtures:load in prod.
+            php bin/console cache:clear --no-interaction
+            php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+            sudo /bin/systemctl reload php8.5-fpm
+
+            # Smoke test: hit the real vhost over TLS but pinned to localhost, so a
+            # broken deploy fails the job (and avoids hairpin-NAT false negatives).
+            curl -fsS --resolve trustindex-demo.leventetorma.dev:443:127.0.0.1 \
+                 -o /dev/null -w 'health: HTTP %{http_code}\n' \
+                 https://trustindex-demo.leventetorma.dev/
+          REMOTE
+      - name: Show prod log on failure
+        if: failure()
+        run: ssh deploy@${{ secrets.SSH_HOST }} 'tail -200 /var/www/trustindex-demo-data/var/log/prod.log 2>/dev/null || echo "(no log yet)"'

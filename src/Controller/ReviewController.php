@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Review;
 use App\Form\ReviewType;
+use App\Repository\ReviewRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,4 +34,21 @@ class ReviewController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    #[Route('/', name: 'review_index', methods: ['GET'])]
+    public function index(Request $request, ReviewRepository $reviews): Response
+    {
+        $limit = 10;
+        $page = max(1, $request->query->getInt('page', 1));
+
+        $paginator = $reviews->paginate($page, $limit);
+        $pages = max(1, (int) ceil(count($paginator) / $limit));
+
+        return $this->render('review/index.html.twig', [
+            'reviews' => $paginator,
+            'currentPage' => $page,
+            'pages' => $pages,
+        ]);
+    }
+
 }

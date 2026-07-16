@@ -261,3 +261,99 @@ textarea:focus {
     color: var(--text);
     background-color: var(--surface);
 }
+
+
+.reviews-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.review-card {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+}
+
+.review-card h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    color: var(--text);
+}
+
+.review-card p {
+    color: var(--text-muted);
+    margin: 0.5rem 0 0;
+}
+
+.review-card em {
+    color: var(--text-faint);
+    font-style: normal;
+    font-size: 0.85rem;
+}
+
+.stars {
+    display: inline-flex;
+    gap: 0.1rem;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.stars .star {
+    color: var(--text-faint);
+}
+
+.stars .star.filled {
+    color: var(--primary);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.page-link {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background-color: var(--surface-2);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.page-link:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.page-link.is-disabled {
+    background-color: transparent;
+    color: var(--text-faint);
+    cursor: default;
+    opacity: 0.6;
+}
+
+.page-status {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.flex {
+    display: flex;
+}
+
+.mx-auto {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.ml-auto {
+    margin-left: auto;
+}

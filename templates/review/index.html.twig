@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reviews{% endblock %}
+
+{% block body %}
+    <div class="reviews-container">
+        <div class="flex">
+            <h1>Reviews</h1>
+            <a class="mx-auto ml-auto" href="{{ path('review_new') }}">
+                <button class="btn-main">
+                    + New Review
+                </button>
+            </a>
+        </div>
+        {% for review in reviews %}
+            <div class="review-card">
+                <h2>{{ review.companyName }}</h2>
+                <div class="stars">
+                    {% for i in 1..5 %}
+                        {% if i <= review.rating %}
+                            <span class="star filled">&#9733;</span>
+                        {% else %}
+                            <span class="star">&#9734;</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <p>{{ review.reviewText|u.truncate(100, '…', false) }}</p>
+                <p>By: {{ review.authorEmail }}</p>
+            </div>
+        {% else %}
+            <p>No reviews found.</p>
+        {% endfor %}
+
+        {% if pages > 1 %}
+            <nav class="pagination" aria-label="Pagination">
+                {% if currentPage > 1 %}
+                    <a class="page-link" href="{{ path('review_index', {page: currentPage - 1}) }}" rel="prev">Prev</a>
+                {% else %}
+                    <span class="page-link is-disabled">Prev</span>
+                {% endif %}
+
+                <span class="page-status">Page {{ currentPage }} of {{ pages }}</span>
+
+                {% if currentPage < pages %}
+                    <a class="page-link" href="{{ path('review_index', {page: currentPage + 1}) }}" rel="next">Next</a>
+                {% else %}
+                    <span class="page-link is-disabled">Next</span>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </div>
+{% endblock %}

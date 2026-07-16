@@ -276,6 +276,13 @@ textarea:focus {
     background-color: var(--surface);
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+.review-goto {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
 }
 
 .review-card h2 {

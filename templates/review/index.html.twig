@@ -27,6 +27,9 @@
                 <p>{{ review.reviewText|u.truncate(100, '…', false) }}</p>
                 <p>By: {{ review.authorEmail }}</p>
                 <p class="text-faint">{{ review.createdAt|date('Y-m-d') }}</p>
+                <a href="{{ path('review_show', {'id': review.id}) }}" class="btn-link review-goto">
+                    View Details
+                </a>
             </div>
         {% else %}
             <p>No reviews found.</p>

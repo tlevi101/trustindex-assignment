@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ review.companyName }} — review{% endblock %}
+
+{% block body %}
+    <div class="reviews-container">
+        <a href="{{ path('review_index') }}" class="btn-link" style="display: inline-block; margin-bottom: 1rem;">← Back to reviews</a>
+
+        <div class="review-card">
+            <h2>{{ review.companyName }}</h2>
+            <div class="stars" aria-label="Rated {{ review.rating }} out of 5">
+                {% for i in 1..5 %}
+                    {% if i <= review.rating %}
+                        <span class="star filled">&#9733;</span>
+                    {% else %}
+                        <span class="star">&#9734;</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <p>{{ review.reviewText }}</p>
+            <p>By: {{ review.authorEmail }}</p>
+            <p class="text-faint">{{ review.createdAt|date('Y-m-d H:i') }}</p>
+        </div>
+    </div>
+{% endblock %}

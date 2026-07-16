@@ -16,17 +16,23 @@
     </div>
 
     {% for message in app.flashes('success') %}
-        <div class="modal is-open" id="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
+        <div class="modal is-open"
+             id="success-modal"
+             x-data="{ open: true }"
+             :class="{ 'is-open': open }"
+             @click.self="open = false"
+             @keydown.escape.window="open = false"
+             role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title" id="success-modal-title">Review saved</h2>
-                        <button type="button" class="btn-close" data-close-modal aria-label="Close"></button>
+                        <button type="button" class="btn-close" @click="open = false" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>{{ message }}</p>
                         <a href="{{ path('review_index') }}" class="btn-main" style="display: block; margin-top: 1.25rem; line-height: 2.5rem; text-align: center; text-decoration: none;">View reviews</a>
-                        <button type="button" class="btn-link" data-close-modal style="width: 100%; background: none; border: none; cursor: pointer;">Add another review</button>
+                        <button type="button" class="btn-link" @click="open = false" style="width: 100%; background: none; border: none; cursor: pointer;">Add another review</button>
                     </div>
                 </div>
             </div>

@@ -18,10 +18,7 @@ class ReviewRepository extends ServiceEntityRepository
     }
 
     /**
-     * One page of reviews, newest first.
-     *
-     * @return Paginator<Review> Countable/iterable: count() gives the total
-     *                           number of rows, iterating gives this page.
+     * @return Paginator<Review>
      */
     public function paginate(int $page, int $limit = 10): Paginator
     {
@@ -32,5 +29,20 @@ class ReviewRepository extends ServiceEntityRepository
             ->getQuery();
 
         return new Paginator($query);
+    }
+
+    /**
+     * @return list<array{companyName: string, reviewCount: int, averageRating: string}>.
+     */
+    public function getCompanyStats(): array
+    {
+        return $this->createQueryBuilder('r')
+            ->select('r.companyName AS companyName')
+            ->addSelect('COUNT(r.id) AS reviewCount')
+            ->addSelect('AVG(r.rating) AS averageRating')
+            ->groupBy('r.companyName')
+            ->orderBy('averageRating', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }

@@ -51,6 +51,14 @@ class ReviewController extends AbstractController
         ]);
     }
 
+    #[Route('/companies', name: 'company_stats', methods: ['GET'])]
+    public function companies(ReviewRepository $reviews): Response
+    {
+        return $this->render('review/companies.html.twig', [
+            'stats' => $reviews->getCompanyStats(),
+        ]);
+    }
+
     #[Route('/{id}', name: 'review_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Review $review): Response
     {

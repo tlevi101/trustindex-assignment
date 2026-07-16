@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Company statistics{% endblock %}
+
+{% block body %}
+    <div class="reviews-container">
+        <a href="{{ path('review_index') }}" class="btn-link nav-back">Back to reviews</a>
+        <h1>Company stats</h1>
+
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th class="num">Reviews</th>
+                    <th class="num">Avg. rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                    <tr>
+                        <td>{{ stat.companyName }}</td>
+                        <td class="num">{{ stat.reviewCount }}</td>
+                        <td class="num">{{ stat.averageRating|number_format(1) }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3">No reviews yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

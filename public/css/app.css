@@ -357,3 +357,7 @@ textarea:focus {
 .ml-auto {
     margin-left: auto;
 }
+
+.text-faint {
+    color: var(--text-faint);
+}

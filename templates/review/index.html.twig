@@ -26,6 +26,7 @@
                 </div>
                 <p>{{ review.reviewText|u.truncate(100, '…', false) }}</p>
                 <p>By: {{ review.authorEmail }}</p>
+                <p class="text-faint">{{ review.createdAt|date('Y-m-d') }}</p>
             </div>
         {% else %}
             <p>No reviews found.</p>
